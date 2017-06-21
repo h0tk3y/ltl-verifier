@@ -16,4 +16,7 @@ apply plugin: 'kotlin'
 
 dependencies {
     compile 'org.jetbrains.kotlin:kotlin-stdlib'
+    compile 'me.sargunvohra.lib:cakeparse:1.1.1'
+    compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.8.7'
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.6.3'
 }
