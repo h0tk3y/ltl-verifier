@@ -37,7 +37,7 @@ class Attributes(val name: String?,
                  @JEW(useWrapping = false) val incoming: List<Transition>?,
                  @JEW(useWrapping = false) val outgoing: List<Transition>?)
 
-class Action(val name: String, comment: String)
+data class Action(val name: String, val comment: String)
 
 fun parseDiagram(xml: String): Diagram {
     val mapper = XmlMapper()

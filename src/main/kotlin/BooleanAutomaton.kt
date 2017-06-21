@@ -3,13 +3,14 @@ data class State(val id: Int,
                  val incomingTransitions: List<Edge>,
                  val outgointTransitions: List<Edge>)
 
-data class Variable(val name: String, val volatile: Boolean)
+data class Variable(val name: String, val volatile: Boolean = false)
 
 data class Assignment(val variable: Variable, val value: Int)
 
 data class Edge(val id: Int,
                 val code: List<Assignment>,
                 val guard: GuardExpression?,
+                val actions: List<Action>,
                 val event: Event)
 
 class BooleanAutomaton(val variables: Map<Variable, Int>,
@@ -45,6 +46,7 @@ fun automatonFromDiagram(diagram: Diagram): BooleanAutomaton {
                 Edge(it.id,
                      parseCode(it.attributes.code ?: "", variables.keys),
                      it.attributes.guard?.let { parseGuardExpression(it, variables.keys) },
+                     it.attributes.action.orEmpty(),
                      it.attributes.event!!)
             }
             .associateBy { it.id }
