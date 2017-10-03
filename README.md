@@ -2,6 +2,8 @@
 
 ## Usage
 
+Download a ditribution from the [releases page](https://github.com/h0tk3y/ltl-verifier/releases).
+
 From inside the distribution, run `ltl-verifier/bin/ltl-verifier` or `ltl-verifier/bin/ltl-verifier.bat` depending on your OS.
 The command line interface is:
 
