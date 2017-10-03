@@ -25,9 +25,9 @@ optional arguments:
 
 ## Input format
 
-LTL formulas: see the grammar: [`LtlParser.kt`](https://github.com/h0tk3y/ltl-verifier/blob/master/src/main/kotlin/LtlParser.kt), e.g. `G F prestart`
+LTL formulas: see the grammar: [`LtlParser.kt`](https://github.com/h0tk3y/ltl-verifier/blob/master/src/main/kotlin/LtlParser.kt) and the examples from the run below.
 
-Automata: see the example [`src/main/resources/automata/test2.xml`](https://github.com/h0tk3y/ltl-verifier/blob/master/src/test/resources/automata/test2.xml)
+Automata: see the example [`src/main/resources/automata/test1.xml`](https://github.com/h0tk3y/ltl-verifier/blob/master/src/test/resources/automata/test1.xml)
 
 ## Example
 
