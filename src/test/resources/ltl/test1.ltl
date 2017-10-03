@@ -1,12 +1,8 @@
-!a U !b
-!a -> b U X a && F b
-(!a -> b) U (X a && F b)
-a
 G (hal_init -> (X tim4_enable))
 G (pin_reset_s1 -> (X pin_reset_s2))
 G (pin_reset_s2 -> (X pin_reset_s3))
 G (hal_init -> (F tim4_enable))
-G (F prestart)
-G (sleep -> (F power_on))
-G (prestart -> (prestart U power_on))
-G ((power_on && chg) -> (power_on U flash))
+G (F PRESTART)
+G (SLEEP -> (F POWER_ON))
+G (PRESTART -> (PRESTART U POWER_ON))
+G ((POWER_ON && CHG) -> (POWER_ON U FLASH))

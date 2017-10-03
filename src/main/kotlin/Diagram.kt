@@ -6,7 +6,6 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import java.io.File
 
 typealias JEW = JacksonXmlElementWrapper
 
@@ -45,14 +44,5 @@ fun parseDiagram(xml: String): Diagram {
             .registerModule(JacksonXmlModule())
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 
-    return mapper.readValue<Diagram>(xml)
-}
-
-fun main(args: Array<String>) {
-    val mapper = XmlMapper()
-            .registerKotlinModule()
-            .registerModule(JacksonXmlModule())
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-
-    mapper.readValue<StateMachine>(File("src/test/resources/automata/test0_a.xml"))
+    return mapper.readValue     (xml)
 }

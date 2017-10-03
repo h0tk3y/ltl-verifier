@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.2-5'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.51'
     }
 }
 
@@ -16,7 +16,8 @@ apply plugin: 'kotlin'
 
 dependencies {
     compile 'org.jetbrains.kotlin:kotlin-stdlib'
-    compile 'me.sargunvohra.lib:cakeparse:1.1.1'
+    compile 'com.github.h0tk3y.betterParse:better-parse:0.2.1'
     compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.8.7'
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.6.3'
+    compile "com.xenomachina:kotlin-argparser:2.0.3"
 }

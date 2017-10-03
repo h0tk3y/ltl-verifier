@@ -45,7 +45,7 @@ fun negationNormalForm(formula: Formula): Formula = when (formula) {
             is Release -> Until(negationNormalForm(Not(f.left)), negationNormalForm(Not(f.right)))
             is Next -> Next(negationNormalForm(Not(f.body)))
 
-            is Impl, is Future, is Global -> negationNormalForm(negationNormalForm(f))
+            is Impl, is Future, is Global -> negationNormalForm(Not(negationNormalForm(f)))
         }
     } // else
     is Future -> Until(TRUE, negationNormalForm(formula.body))
@@ -96,17 +96,30 @@ fun maximallyConsistentSubsets(formulas: Set<Formula>) = allSubsets(formulas).fi
     subset.filterIsInstance<Or>().all { it.left in subset || it.right in subset }
 }
 
-fun variables(formula: Formula): Set<Prop> = when (formula) {
-    is Prop -> setOf(formula)
-    is And -> variables(formula.left) + variables(formula.right)
-    is Or -> variables(formula.left) + variables(formula.right)
-    is Impl -> variables(formula.left) + variables(formula.right)
-    is Until -> variables(formula.left) + variables(formula.right)
-    is Release -> variables(formula.left) + variables(formula.right)
-    is Future -> variables(formula.body)
-    is Global -> variables(formula.body)
-    is Next -> variables(formula.body)
-    is Not -> variables(formula.body)
+fun Formula.variables(): Set<Prop> = when (this) {
+    is Prop -> setOf(this)
+    is And -> left.variables() + right.variables()
+    is Or -> left.variables() + right.variables()
+    is Impl -> left.variables() + right.variables()
+    is Until -> left.variables() + right.variables()
+    is Release -> left.variables() + right.variables()
+    is Future -> body.variables()
+    is Global -> body.variables()
+    is Next -> body.variables()
+    is Not -> body.variables()
     TRUE -> emptySet()
     FALSE -> emptySet()
+}
+
+fun Formula.subformulas(): Set<Formula> = setOf(this) + when (this) {
+    is Prop, TRUE, FALSE -> emptySet()
+    is Not -> body.subformulas()
+    is And -> left.subformulas() + right.subformulas()
+    is Or -> left.subformulas() + right.subformulas()
+    is Impl -> left.subformulas() + right.subformulas()
+    is Until -> left.subformulas() + right.subformulas()
+    is Release -> left.subformulas() + right.subformulas()
+    is Future -> body.subformulas()
+    is Global -> body.subformulas()
+    is Next -> body.subformulas()
 }

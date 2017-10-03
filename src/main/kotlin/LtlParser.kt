@@ -1,55 +1,64 @@
-import me.sargunvohra.lib.cakeparse.api.*
-import me.sargunvohra.lib.cakeparse.parser.ParsableToken
-import me.sargunvohra.lib.cakeparse.parser.Parser
-import org.intellij.lang.annotations.RegExp
+import com.github.h0tk3y.betterParse.combinators.*
+import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.grammar.parseToEnd
+import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.parser.Parser
 
-private val tokens = linkedSetOf<ParsableToken>()
-private fun token(name: String, @RegExp pattern: String, ignore: Boolean = false) =
-        me.sargunvohra.lib.cakeparse.api.token(name, pattern, ignore).also { tokens.add(it) }
+val grammar = object : Grammar<Formula>() {
+    private val LPAR by token("\\(")
+    private val RPAR by token("\\)")
 
-private val LPAR = token("LPAR", "\\(")
-private val RPAR = token("RPAR", "\\)")
+    private val AND by token("&(&?)")
+    private val OR by token("\\|(\\|?)")
+    private val IMPL by token("->")
+    private val NOT by token("!|-")
 
-private val AND = token("AND", "&(&?)")
-private val OR = token("OR", "\\|(\\|?)")
-private val IMPL = token("IMPL", "->")
-private val NOT = token("NOT", "!|-")
+    private val F by token("F\\b")
+    private val R by token("R\\b")
+    private val U by token("U\\b")
+    private val G by token("G\\b")
+    private val X by token("X\\b")
 
-private val F = token("F", "F")
-private val R = token("R", "R")
-private val U = token("U", "U")
-private val G = token("G", "G")
-private val X = token("X", "X")
+    private val TRUE_TOKEN by token("TRUE\\b")
+    private val FALSE_TOKEN by token("FALSE\\b")
 
-private val TRUE_TOKEN = token("TRUE", "TRUE\\b")
-private val FALSE_TOKEN = token("FALSE", "FALSE\\b")
+    private val ID by token("\\w+")
 
-private val ID = token("ID", "\\w+")
+    private val WS by token("\\s+", ignore = true)
+    private val NEWLINE by token("[\r\n]+", ignore = true)
 
-private val WS = token("WS", "\\s+", ignore = true)
-private val NEWLINE = token("NEWLINE", "[\r\n]+", ignore = true)
+    private val falseParser = FALSE_TOKEN.map { FALSE }
+    private val trueParser = TRUE_TOKEN.map { TRUE }
 
-private val falseParser = FALSE_TOKEN.map { FALSE }
-private val trueParser = TRUE_TOKEN.map { TRUE }
+    private val propParser = ID.map { Prop(it.text) }
+    private val notParser = (-NOT * parser { tokenParser }).map(::Not)
+    private val parenFormulaParser = -LPAR * parser { formulaParser } * -RPAR
 
-private val propParser = ID.map { Prop(it.raw) }
-private val notParser = (NOT then ref { tokenParser }).map { Not(it) }
-private val parenFormulaParser = LPAR then ref { formulaParser } before RPAR
+    private val xParser = (-X * parser { tokenParser }).map { Next(it) }
+    private val fParser = (-F * parser { tokenParser }).map { Future(it) }
+    private val gParser = (-G * parser { tokenParser }).map { Global(it) }
 
-private val xParser = (X then ref { tokenParser }).map { Next(it) }
-private val fParser = (F then ref { tokenParser }).map { Future(it) }
-private val gParser = (G then ref { tokenParser }).map { Global(it) }
+    private val tokenParser: Parser<Formula> =
+        propParser or
+        notParser or
+        parenFormulaParser or
+        xParser or
+        fParser or
+        gParser or
+        falseParser or
+        trueParser
 
-private val tokenParser: Parser<Formula> =
-        propParser or notParser or parenFormulaParser or xParser or fParser or gParser or falseParser or trueParser
+    private val uParser = tokenParser * optional(-U * tokenParser) map { (l, r) -> if (r == null) l else Until(l, r) }
 
-private val uParser = descendOrCombine(tokenParser, U then ref { tokenParser }) { l, r -> Until(l, r) }
-private val rParser = descendOrCombine(uParser, R then uParser) { l, r -> Release(l, r) }
+    private val rParser = uParser * optional(-R * uParser) map { (l, r) -> if (r == null) l else Release(l, r) }
 
-private val andChain = leftAssociative(rParser, AND) { l, _, r -> And(l, r) }
-private val orChain = leftAssociative(andChain, OR) { l, _, r -> Or(l, r) }
-private val implChain = rightAssociative(orChain, IMPL) { l, _, r -> Impl(l, r) }
+    private val andChain = leftAssociative(rParser, AND) { l, _, r -> And(l, r) }
+    private val orChain = leftAssociative(andChain, OR) { l, _, r -> Or(l, r) }
+    private val implChain = rightAssociative(orChain, IMPL) { l, _, r -> Impl(l, r) }
 
-private val formulaParser: Parser<Formula> = implChain
+    private val formulaParser: Parser<Formula> = implChain
 
-fun parseLtlFormula(formula: String) = tokens.lexer().lex(formula).parseToEnd(formulaParser).value
+    override val rootParser: Parser<Formula> = formulaParser
+}
+
+fun parseLtlFormula(formula: String) = grammar.parseToEnd(formula)
